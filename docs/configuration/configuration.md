@@ -753,6 +753,7 @@ Available meta labels:
 * `__meta_kubernetes_pod_labelpresent_<labelname>`: `true`for each label from the pod object.
 * `__meta_kubernetes_pod_annotation_<annotationname>`: Each annotation from the pod object.
 * `__meta_kubernetes_pod_annotationpresent_<annotationname>`: `true` for each annotation from the pod object.
+* `__meta_kubernetes_pod_container_init`: `true` if the container is an [InitContainer](https://kubernetes.io/docs/concepts/workloads/pods/init-containers/)
 * `__meta_kubernetes_pod_container_name`: Name of the container the target address points to.
 * `__meta_kubernetes_pod_container_port_name`: Name of the container port.
 * `__meta_kubernetes_pod_container_port_number`: Number of the container port.
@@ -1287,8 +1288,8 @@ tls_config:
 
 # Configures the queue used to write to remote storage.
 queue_config:
-  # Number of samples to buffer per shard before we start dropping them.
-  [ capacity: <int> | default = 10000 ]
+  # Number of samples to buffer per shard before we block reading of more samples from the WAL.
+  [ capacity: <int> | default = 10 ]
   # Maximum number of shards, i.e. amount of concurrency.
   [ max_shards: <int> | default = 1000 ]
   # Minimum number of shards, i.e. amount of concurrency.
@@ -1297,8 +1298,6 @@ queue_config:
   [ max_samples_per_send: <int> | default = 100]
   # Maximum time a sample will wait in buffer.
   [ batch_send_deadline: <duration> | default = 5s ]
-  # Maximum number of times to retry a batch on recoverable errors.
-  [ max_retries: <int> | default = 3 ]
   # Initial retry delay. Gets doubled for every retry.
   [ min_backoff: <duration> | default = 30ms ]
   # Maximum retry delay.

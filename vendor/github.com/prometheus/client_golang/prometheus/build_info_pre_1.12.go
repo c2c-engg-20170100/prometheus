@@ -11,31 +11,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-package remote
+// +build !go1.12
 
-import (
-	"sync"
+package prometheus
 
-	"github.com/prometheus/client_golang/prometheus"
-)
-
-type maxGauge struct {
-	mtx   sync.Mutex
-	value float64
-	prometheus.Gauge
-}
-
-func (m *maxGauge) Set(value float64) {
-	m.mtx.Lock()
-	defer m.mtx.Unlock()
-	if value > m.value {
-		m.value = value
-		m.Gauge.Set(value)
-	}
-}
-
-func (m *maxGauge) Get() float64 {
-	m.mtx.Lock()
-	defer m.mtx.Unlock()
-	return m.value
+// readBuildInfo is a wrapper around debug.ReadBuildInfo for Go versions before
+// 1.12. Remove this whole file once the minimum supported Go version is 1.12.
+func readBuildInfo() (path, version, sum string) {
+	return "unknown", "unknown", "unknown"
 }
