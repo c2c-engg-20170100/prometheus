@@ -1,0 +1,29 @@
+FROM debian:9
+
+ARG PROMETHEUS_VERSION=2.8.1
+ARG ARCH=arm64
+ARG PROMETHEUS_URL=https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/prometheus-${PROMETHEUS_VERSION}.linux-arm64.tar.gz
+
+RUN apt-get update && \
+    apt-get install -y wget && \
+    wget ${PROMETHEUS_URL} && \
+    tar xzf prometheus-${PROMETHEUS_VERSION}.linux-${ARCH}.tar.gz prometheus-${PROMETHEUS_VERSION}.linux-arm64/prometheus && \
+    cp prometheus-$PROMETHEUS_VERSION.linux-arm64/prometheus .
+
+FROM busybox:1-glibc
+
+ENV PROMETHEUS_STORAGE /data
+ENV PROMETHEUS_LOG info
+
+
+COPY --from=0 /prometheus /usr/local/bin/prometheus
+COPY . .
+
+VOLUME $PROMETHEUS_STORAGE
+
+EXPOSE 9090
+
+ENTRYPOINT [ "prometheus" ]
+
+CMD [ "--config.file=./documentation/examples/prometheus.yml", \
+      "--storage.tsdb.path=/data" ]
